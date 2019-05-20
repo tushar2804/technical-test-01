@@ -1,0 +1,6 @@
+.git
+.k8s
+Dockerfile
+README.md
+cloudbuild.yaml
+build-local.sh

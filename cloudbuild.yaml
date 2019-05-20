@@ -1,0 +1,48 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    id: TestAndBuild
+    args:
+      - 'build'
+      - '-t'
+      - 'asia.gcr.io/$PROJECT_ID/tech-test2:$SHORT_SHA'
+      - '--build-arg'
+      - 'ci_sha=$COMMIT_SHA'
+      - '--build-arg'
+      - 'ci_description=pre-interview technical test, CloudBuild does not have commit message?'
+      - '--build-arg'
+      - 'ci_version=1.0.0'
+      - '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Tag
+    args:
+      - 'tag'
+      - 'asia.gcr.io/$PROJECT_ID/tech-test2:$SHORT_SHA'
+      - 'asia.gcr.io/$PROJECT_ID/tech-test2:latest'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    args:
+      - 'push'
+      - 'asia.gcr.io/$PROJECT_ID/tech-test2'
+
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: DeployApp
+    args:
+      - 'apply'
+      - '-f'
+      - '.k8s/app.yaml'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=australia-southeast1-c'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=cloudbuild-cluster1'
+
+  - name: 'gcr.io/cloud-builders/kubectl'
+    id: RollingUpdate
+    args:
+      - 'set'
+      - 'image'
+      - 'deployment/app-deploy'
+      - 'app-golang=asia.gcr.io/$PROJECT_ID/tech-test2:$SHORT_SHA'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=australia-southeast1-c'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=cloudbuild-cluster1'
