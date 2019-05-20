@@ -1,16 +1,18 @@
-FROM golang:alpine AS builder
+FROM golang:1.12.5-alpine3.9 AS builder
 
 ENV GO111MODULE=on
 
 RUN apk update --no-cache && \
-  apk add git
+  apk add git \
+    alpine-sdk
 
 WORKDIR /app
 COPY . /app
-RUN go build -o app .
+RUN go test && \
+  go build -o app .
 
 # final stage
-FROM alpine
+FROM alpine:3.9.4
 
 ARG ci_sha
 ARG ci_description
