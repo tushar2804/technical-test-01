@@ -3,11 +3,13 @@ FROM golang:alpine AS builder
 ENV GO111MODULE=on
 
 RUN apk update --no-cache && \
-  apk add git
+  apk add git \
+    alpine-sdk
 
 WORKDIR /app
 COPY . /app
-RUN go build -o app .
+RUN go test && \
+  go build -o app .
 
 # final stage
 FROM alpine

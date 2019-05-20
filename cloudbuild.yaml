@@ -1,16 +1,14 @@
 steps:
-  - name: 'golang:alpine'
+  - name: 'gcr.io/cloud-builders/docker'
+    id: TestAndBuild
     args:
-      - apk
-      - update
-      - --no-cache
-  - name: 'golang:alpine'
-    args:
-      - apk
-      - add
-      - git
-  - name: 'golang:alpine'
-    id: Test
-    args:
-      - go
-      - test
+      - 'build'
+      - '-t'
+      - 'asia.gcr.io/$PROJECT_ID/tech-test2:$SHORT_SHA'
+      - '--build-arg'
+      - 'ci_sha=$COMMIT_SHA'
+      - '--build-arg'
+      - 'ci_description=pre-interview technical test, CloudBuild does not have commit message?'
+      - '--build-arg'
+      - 'ci_version=1.0.0'
+      - '.'
