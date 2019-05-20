@@ -23,20 +23,22 @@ type HealthCheckInfo struct {
   MyApplication []AppInfo `json:"myapplication"`
 }
 
+func getCommandOutput(cmd string, args ...string) string {
+  stdout, err := exec.Command(cmd, args...).Output()
+  if err == nil {
+    return strings.TrimRight(string(stdout), "\n")
+  }
+  return err.Error()
+}
+
 // HealthCheckHandler handles http request to /healthcheck
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
   var CIVersion, CISHA, CIDescription string
   if os.Getenv("CI") == "" {
     // this is local dev mode
     CIVersion = "localdev"
-    description, err := exec.Command("git", "log", "-1", "--pretty=%B").Output()
-    if err == nil {
-      CIDescription = strings.TrimRight(string(description), "\n")
-    }
-    sha, err := exec.Command("git", "rev-parse", "HEAD").Output()
-    if err == nil {
-      CISHA = strings.TrimRight(string(sha), "\n")
-    }
+    CIDescription = getCommandOutput("git", "log", "-1", "--pretty=%B")
+    CISHA = getCommandOutput("git", "rev-parse", "HEAD")
   }else{
     CIVersion = os.Getenv("CI_VERSION")
     CIDescription = os.Getenv("CI_DESCRIPTION")
