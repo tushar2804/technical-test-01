@@ -12,3 +12,16 @@ steps:
       - '--build-arg'
       - 'ci_version=1.0.0'
       - '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Tag
+    args:
+      - 'tag'
+      - 'asia.gcr.io/$PROJECT_ID/tech-test2:$SHORT_SHA'
+      - 'asia.gcr.io/$PROJECT_ID/tech-test2:latest'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    args:
+      - 'push'
+      - 'asia.gcr.io/$PROJECT_ID/tech-test2'
