@@ -1,5 +1,15 @@
 steps:
   - name: 'golang:alpine'
+    args:
+      - apk
+      - update
+      - --no-cache
+  - name: 'golang:alpine'
+    args:
+      - apk
+      - add
+      - git
+  - name: 'golang:alpine'
     id: Test
     args:
       - go
