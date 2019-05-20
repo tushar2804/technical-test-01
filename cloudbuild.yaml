@@ -1,0 +1,6 @@
+steps:
+  - name: 'golang:alpine'
+    id: Test
+    args:
+      - go
+      - test
