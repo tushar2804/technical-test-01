@@ -82,6 +82,9 @@ curl http://localhost:10000/healthcheck
 }
 ```
 
+### Code Linter
+I use Golang and Docker linter plugins for Atom so code is checked everytime when it's saved.
+
 ### Known Risks
 - Fully built on top of GCP toolkit, not portable
 - Git branches are not checked for now
