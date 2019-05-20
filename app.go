@@ -7,6 +7,10 @@ import (
   "log"
   "encoding/json"
   "fmt"
+  "time"
+  "strings"
+
+  "github.com/gorilla/mux"
 )
 // AppInfo has infomation for current build
 type AppInfo struct {
@@ -27,11 +31,11 @@ func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
     CIVersion = "localdev"
     description, err := exec.Command("git", "log", "-1", "--pretty=%B").Output()
     if err == nil {
-      CIDescription = string(description)
+      CIDescription = strings.TrimRight(string(description), "\n")
     }
     sha, err := exec.Command("git", "rev-parse", "HEAD").Output()
     if err == nil {
-      CISHA = string(sha)
+      CISHA = strings.TrimRight(string(sha), "\n")
     }
   }else{
     CIVersion = os.Getenv("CI_VERSION")
@@ -57,6 +61,13 @@ func main() {
   if port == "" {
 		port = "10000"
 	}
-  http.HandleFunc("/healthcheck", HealthCheckHandler)
-	log.Fatal(http.ListenAndServe(":"+ port, nil))
+  r := mux.NewRouter()
+  r.HandleFunc("/healthcheck", HealthCheckHandler)
+  server := &http.Server{
+		Handler:      r,
+		Addr:         ":" + port,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+  log.Fatal(server.ListenAndServe())
 }
