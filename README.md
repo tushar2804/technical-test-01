@@ -1,4 +1,4 @@
-# technical-tests-rx2
+# technical-test number 1
 ## Challenge
 The following test will require you to do the following:
 - Create a simple application which has a single "/healthcheck" endpoint.
@@ -31,9 +31,9 @@ Other things to consider as additions:
 - Describe or demonstrate any risks associated with your application/deployment.
 - Write a clear and understandable README which explains your application and its deployment steps.
 
-The application code should be within a Github or Gitlab repository where we can review your source code and any configuration required for your project to execute. Please make sure the repository is public so it's viewable.
+The application code should be within a Github or Gitlab repository where we can review your source code and any configuration required for your project to execute. Please make sure the repository is public so it's viewable.  Below, and in this repository, contains an example solution.
 
-## Solution
+## Example Solution
 ### Prerequisites
 
 The CI/CD pipeline has been setup with my own GCP account. To set it up with your GCP account, you will need to run following gcloud commands:
