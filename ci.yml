@@ -1,0 +1,56 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go environment
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.20
+
+      - name: Run tests
+        run: go test ./...
+
+      - name: Build Docker image
+        run: docker build -t healthcheck-api .
+
+      - name: Lint Code
+        run: golangci-lint run --timeout=5m
+
+      - name: Get Last Commit SHA
+        id: get_commit
+        run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+
+      - name: Build and Tag Docker image
+        run: |
+          docker build -t your-dockerhub-username/healthcheck-api:${{ steps.get_commit.outputs.sha }} .
+          docker tag your-dockerhub-username/healthcheck-api:${{ steps.get_commit.outputs.sha }} your-dockerhub-username/healthcheck-api:latest
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push your-dockerhub-username/healthcheck-api:${{ steps.get_commit.outputs.sha }}
+          docker push your-dockerhub-username/healthcheck-api:latest
+
+      - name: Deploy to GKE
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@v1
+        with:
+          version: 'latest'
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Update K8s Deployment
+        run: |
+          gcloud container clusters get-credentials your-cluster-name --zone your-zone
+          kubectl set image deployment/healthcheck-deployment healthcheck-api=your-dockerhub-username/healthcheck-api:${{ steps.get_commit.outputs.sha }}
